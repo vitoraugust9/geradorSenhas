@@ -1,66 +1,116 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Text, Modal, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Pressable } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import useStorage from '../../hooks/useStorage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-export default function ModalPassword() {
+export function ModalPassword({ password, handleClose }) {
+ const { saveItem } = useStorage();
 
-  return (
+ async function savePassword() {
+    await saveItem('@pass', password);
+
+    alert('Senha salva com sucesso!');
+
+    handleClose();
+ }
+
+ async function handleCopyPassword() {
+    await Clipboard.setStringAsync(password);
+
+    await saveItem('@pass', password);
+
+    alert('Senha copiada e salva com sucesso!');
+    handleClose();
+ }
+
+ return (
     <View style={styles.container}>
-      <Text style={styles.text}>Conteúdo por trás do modal</Text>
-      <TouchableOpacity onPress={() => setModalVisible(true)}>
-        <Text style={styles.button}>Abrir Modal</Text>
-      </TouchableOpacity>
+      <View style={styles.content}>
+        <Text style={styles.title}>Senha Gerada</Text>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Conteúdo do Modal</Text>
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text style={styles.closeButton}>Fechar Modal</Text>
-            </TouchableOpacity>
-          </View>
+        <Pressable style={styles.innerPassword} onPress={handleCopyPassword}>
+          <Text style={styles.text}>{password}</Text>
+          <Icon name="content-copy" size={24} color="#FFF" style={styles.copyIcon} />
+        </Pressable>
+
+        <View style={styles.buttonArea}>
+          <TouchableOpacity style={styles.button} onPress={handleClose}>
+            <Text style={styles.buttonText}>Voltar</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.button, styles.buttonSave]} onPress={savePassword}>
+            <Text style={styles.buttonSaveText}>Salvar senha</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </View>
     </View>
-  );
-};
+ );
+}
 
 const styles = StyleSheet.create({
-  container: {
+ container: {
+    backgroundColor: 'rgba(24,24,24,0.6)',
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-  },
-  text: {
+    justifyContent: 'center',
+ },
+ content: {
+    backgroundColor: '#FFF',
+    width: '85%',
+    paddingTop: 24,
+    paddingBottom: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+ },
+ title: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 24,
+ },
+ innerPassword: {
+    backgroundColor: '#0E0E0E',
+    width: '90%',
+    padding: 14,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+ },
+ text: {
+    color: '#FFF',
+    textAlign: 'center',
     fontSize: 18,
-    marginBottom: 20,
-  },
-  button: {
+    flex: 1,
+ },
+ copyIcon: {
+    marginLeft: 8,
+ },
+ buttonArea: {
+    flexDirection: 'row',
+    width: '90%',
+    marginTop: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+ },
+ button: {
+    flex: 1,
+    alignItems: 'center',
+    margin: 14,
+    padding: 8,
+ },
+ buttonSave: {
+    backgroundColor: '#392DE9',
+    borderRadius: 8,
+ },
+ buttonSaveText: {
+    color: '#FFF',
+    fontWeight: 'bold',
     fontSize: 20,
-    color: 'blue',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  modalText: {
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  closeButton: {
-    fontSize: 16,
-    color: 'blue',
-  },
+ },
+ buttonText: {
+    fontWeight: 'bold',
+    fontSize: 20,
+ },
 });
